@@ -32,7 +32,9 @@
 #define DEFAULT_RC_ALLOWED_HOSTS   "::ffff:127.0.0.1"
 
 RemoteControl::RemoteControl(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    cmdOk("RPRT 0\n"),
+    cmdFail("RPRT 1\n")
 {
 
     rc_freq = 0;
@@ -213,6 +215,12 @@ void RemoteControl::startRead()
         answer = cmd_get_freq();
     else if (cmd == "F")
         answer = cmd_set_freq(cmdlist);
+    else if (cmd == "A")
+        answer = cmd_set_freq_osc(cmdlist);
+    else if (cmd == "B")
+        answer = cmd_set_freq_offset(cmdlist);
+    else if (cmd == "C")
+        answer = cmd_set_dsp_state(cmdlist);
     else if (cmd == "m")
         answer = cmd_get_mode();
     else if (cmd == "M")
@@ -543,6 +551,41 @@ QString RemoteControl::cmd_set_freq(QStringList cmdlist)
     }
 
     return QString("RPRT 1\n");
+}
+
+QString RemoteControl::cmd_set_freq_osc(QStringList cmdlist)
+{
+    bool ok;
+    double freq = cmdlist.value(1, "ERR").toDouble(&ok);
+    if (ok) {
+        emit newFrequency((qint64)freq);
+        return cmdOk;
+    }
+    return cmdFail;
+}
+
+QString RemoteControl::cmd_set_freq_offset(QStringList cmdlist)
+{
+    bool ok;
+    double foffset = cmdlist.value(1, "ERR").toDouble(&ok);
+    if (ok) {
+        emit newFilterOffset((qint64)foffset);
+        return cmdOk;
+    }
+
+    return cmdFail;
+}
+
+QString RemoteControl::cmd_set_dsp_state(QStringList cmdlist)
+{
+  bool ok;
+  long v = cmdlist.value(1, "ERR").toLong(&ok);
+  if (ok && (v == 0 || v == 1)) {
+    emit newDSPState(v == 1);
+    return cmdOk;
+  }
+
+  return cmdFail;
 }
 
 /* Get mode and passband */

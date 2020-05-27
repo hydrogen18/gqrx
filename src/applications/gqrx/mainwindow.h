@@ -135,6 +135,7 @@ private slots:
     /* baseband receiver */
     void setFilterOffset(qint64 freq_hz);
     void setGain(QString name, double gain);
+    void setDSPState(bool newState);
     void setAutoGain(bool enabled);
     void setFreqCorr(double ppm);
     void setIqSwap(bool reversed);

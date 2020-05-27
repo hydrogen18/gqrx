@@ -106,6 +106,7 @@ signals:
     void startAudioRecorderEvent();
     void stopAudioRecorderEvent();
     void gainChanged(QString name, double value);
+    void newDSPState(bool enabled);
 
 private slots:
     void acceptConnection();
@@ -138,6 +139,10 @@ private:
     QString     intToModeStr(int mode);
 
     /* RC commands */
+    QString     cmd_set_freq_osc(QStringList cmdlist);
+    QString     cmd_set_freq_offset(QStringList cmdlist);
+    QString     cmd_set_dsp_state(QStringList cmdlist);
+
     QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
     QString     cmd_get_mode();
@@ -155,6 +160,8 @@ private:
     QString     cmd_LOS();
     QString     cmd_lnb_lo(QStringList cmdlist);
     QString     cmd_dump_state() const;
+    QString cmdOk;
+    QString cmdFail;
 };
 
 #endif // REMOTE_CONTROL_H

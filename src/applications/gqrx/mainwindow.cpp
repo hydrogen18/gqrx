@@ -283,6 +283,7 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     connect(ui->plotter, SIGNAL(newFilterFreq(int, int)), remote, SLOT(setPassband(int, int)));
     connect(remote, SIGNAL(newPassband(int)), this, SLOT(setPassband(int)));
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
+    connect(remote, SIGNAL(newDSPState(bool)), this, SLOT(setDSPState(bool)));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
@@ -891,6 +892,17 @@ void MainWindow::setFilterOffset(qint64 freq_hz)
 void MainWindow::setGain(QString name, double gain)
 {
     rx->set_gain(name.toStdString(), gain);
+}
+
+void MainWindow::setDSPState(bool newState)
+{
+    const bool presentState = ui->actionDSP->isChecked();
+    if (presentState == newState) {
+        return;
+    }
+
+    on_actionDSP_triggered(newState);
+    ui->actionDSP->setChecked(newState);
 }
 
 /** Enable / disable hardware AGC. */
