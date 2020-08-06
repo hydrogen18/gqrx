@@ -211,16 +211,23 @@ void RemoteControl::startRead()
         return;
 
     QString cmd = cmdlist[0];
+    // TODO a way to control AGC 
     if (cmd == "f")
         answer = cmd_get_freq();
     else if (cmd == "F")
         answer = cmd_set_freq(cmdlist);
     else if (cmd == "A")
         answer = cmd_set_freq_osc(cmdlist);
+    else if (cmd == "a")
+        answer = cmd_get_freq_osc();
     else if (cmd == "B")
         answer = cmd_set_freq_offset(cmdlist);
+    else if (cmd == "b")
+        answer = cmd_get_freq_offset();
     else if (cmd == "C")
         answer = cmd_set_dsp_state(cmdlist);
+    else if (cmd == "c")
+        answer = cmd_get_dsp_state();
     else if (cmd == "m")
         answer = cmd_get_mode();
     else if (cmd == "M")
@@ -553,12 +560,27 @@ QString RemoteControl::cmd_set_freq(QStringList cmdlist)
     return QString("RPRT 1\n");
 }
 
+QString RemoteControl::cmd_get_freq_osc()
+{
+  return QString("%1\n").arg(rc_freq - rc_filter_offset);
+}
+
+QString RemoteControl::cmd_get_freq_offset()
+{
+  return QString("%1\n").arg(rc_filter_offset);
+}
+
+QString RemoteControl::cmd_get_dsp_state(){
+  return cmdFail;
+}
+
 QString RemoteControl::cmd_set_freq_osc(QStringList cmdlist)
 {
     bool ok;
     double freq = cmdlist.value(1, "ERR").toDouble(&ok);
     if (ok) {
         emit newFrequency((qint64)freq);
+        rc_freq = freq + rc_filter_offset;
         return cmdOk;
     }
     return cmdFail;
@@ -570,6 +592,12 @@ QString RemoteControl::cmd_set_freq_offset(QStringList cmdlist)
     double foffset = cmdlist.value(1, "ERR").toDouble(&ok);
     if (ok) {
         emit newFilterOffset((qint64)foffset);
+        // recover original frequency
+        auto f = rc_freq - rc_filter_offset;
+        // update stored value
+        rc_filter_offset = foffset;
+        // compute actual freq
+        rc_freq =  f + rc_filter_offset;
         return cmdOk;
     }
 

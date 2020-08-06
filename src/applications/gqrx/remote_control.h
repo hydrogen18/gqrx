@@ -142,6 +142,9 @@ private:
     QString     cmd_set_freq_osc(QStringList cmdlist);
     QString     cmd_set_freq_offset(QStringList cmdlist);
     QString     cmd_set_dsp_state(QStringList cmdlist);
+    QString     cmd_get_freq_osc();
+    QString     cmd_get_freq_offset();
+    QString     cmd_get_dsp_state();
 
     QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
